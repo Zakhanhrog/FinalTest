@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý sổ tiết kiệm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+
+        }
+        table {
+            width: 100%;
+            border: 1px solid black;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        th, td {
+
+            padding: 8px;
+            text-align: left;
+            border-radius: 5px;
+            border: #20f376;
+
+        }
+        th{
+            background-color: #20f376;
+            text-align: center;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button{
+            background-color: #ff4757;
+            width: 150px;
+            height: 30px;
+            margin: 20px 20px 0 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: all ease-in-out 0.3s;
+        }
+        button:hover{
+            transform: scale(1.1);
+            transform: translateY(-3px);
+        }
+        .main{
+            width: 80%;
+            background-color: rgba(255, 71, 87, 0.2);
+            padding: 50px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            display: flex;
+
+        }
+
+        .logo{
+            color: #ff4757;
+        }
+
+        input{
+            width: 95%;
+            margin: 3px 0px 10px 0;
+        }
+        .buttons{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        span{
+            color: rgba(255, 107, 129, 0.72);
+        }
+
+
+
+    </style>
+</head>
+<body>
+<div class="main">
+<h1>Quản lý sổ tiết kiệm</h1><span><span class="logo">Dev</span><i>zakhanh</i></span><br>
+
+<h2>Danh sách sổ tiết kiệm</h2>
+<table id="tblSoTietKiem">
+    <thead>
+    <tr>
+        <th>Mã số</th>
+        <th>Loại tiết kiệm</th>
+        <th>Họ tên KH</th>
+        <th>CMND</th>
+        <th>Ngày mở sổ</th>
+        <th>Số tiền gửi</th>
+    </tr>
+    </thead>
+    <tbody id="tblBody">
+    </tbody>
+</table>
+
+<!--thêm sổ tiết kiệm -->
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeAddModal()">&times;</span>
+        <h2>Thêm sổ tiết kiệm</h2>
+        <form id="addForm">
+            <div>
+                <label>Mã số (tối đa 5 ký tự):</label><br>
+                <input type="text" id="maSo" maxlength="5" required>
+                <span id="maSoError" class="error"></span>
+            </div>
+            <div>
+                <label>Loại tiết kiệm (tối đa 10 ký tự):</label><br>
+                <input type="text" id="loaiTietKiem" maxlength="10" required>
+                <span id="loaiTietKiemError" class="error"></span>
+            </div>
+            <div>
+                <label>Họ tên khách hàng (tối đa 30 ký tự):</label><br>
+                <input type="text" id="hoTenKH" maxlength="30" required>
+                <span id="hoTenKHError" class="error"></span>
+            </div>
+            <div>
+                <label>CMND:</label><br>
+                <input type="number" id="cmnd" required>
+                <span id="cmndError" class="error"></span>
+            </div>
+            <div>
+                <label>Ngày mở sổ (dd/mm/yyyy):</label><br>
+                <input type="text" id="ngayMoSo" placeholder="dd/mm/yyyy" required>
+                <span id="ngayMoSoError" class="error"></span>
+            </div>
+            <div>
+                <label>Số tiền gửi:</label><br>
+                <input type="number" id="soTienGui" required>
+                <span id="soTienGuiError" class="error"></span>
+            </div>
+            <div class="buttons">
+            <button type="button" onclick="themSoTietKiem()">Thêm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal xóa sổ tiết kiệm -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeDeleteModal()">&times;</span>
+        <h2>Xóa sổ tiết kiệm</h2>
+        <div>
+            <label>Nhập mã số sổ cần xóa:</label>
+            <input type="text" id="maSoXoa" maxlength="5" required>
+            <span id="maSoXoaError" class="error"></span>
+        </div>
+        <div class="buttons">
+        <button type="button" onclick="xacNhanXoa()">Xác nhận xóa</button>
+        </div>
+    </div>
+</div>
+    <div>
+    <button onclick="showAddModal()">Thêm sổ tiết kiệm</button>
+    <button onclick="showDeleteModal()">Xóa sổ tiết kiệm</button>
+    </div>
+</div>
+
+<script>
+    class SOTIETKIEM {
+        constructor(maSo, loaiTietKiem, hoTenKH, cmnd, ngayMoSo, soTienGui) {
+            this.maSo = maSo;
+            this.loaiTietKiem = loaiTietKiem;
+            this.hoTenKH = hoTenKH;
+            this.cmnd = cmnd;
+            this.ngayMoSo = ngayMoSo;
+            this.soTienGui = soTienGui;
+        }
+    }
+
+
+    let danhSachSoTietKiem = [];
+
+    // Hiển thị thêm sổ
+    function showAddModal() {
+        document.getElementById('addModal').style.display = 'block';
+        clearAddForm();
+    }
+
+    // thêm sổ
+    function closeAddModal() {
+        document.getElementById('addModal').style.display = 'none';
+    }
+
+    // xóa sổ
+    function showDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'block';
+        document.getElementById('maSoXoaError').textContent = '';
+        document.getElementById('maSoXoa').value = '';
+    }
+
+    // Đóng modal xóa sổ
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    // Xóa form thêm sổ
+    function clearAddForm() {
+        document.getElementById('addForm').reset();
+        document.querySelectorAll('.error').forEach(el => el.textContent = '');
+    }
+
+    // Kiểm tra ngày hợp lệ
+    function isValidDate(dateString) {
+        const pattern = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+        if (!pattern.test(dateString)) return false;
+
+        const parts = dateString.split('/');
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10);
+        const year = parseInt(parts[2], 10);
+
+        const date = new Date(year, month - 1, day);
+        return date.getFullYear() === year &&
+            date.getMonth() === month - 1 &&
+            date.getDate() === day;
+    }
+
+    // kiểm tra xem mã số có tồn tại k
+    function isMaSoExists(maSo) {
+        return danhSachSoTietKiem.some(so => so.maSo === maSo);
+    }
+
+    // Thêm sổ tiết kiệm
+    function themSoTietKiem() {
+        // Lấy giá trị từ form
+        const maSo = document.getElementById('maSo').value.trim();
+        const loaiTietKiem = document.getElementById('loaiTietKiem').value.trim();
+        const hoTenKH = document.getElementById('hoTenKH').value.trim();
+        const cmnd = document.getElementById('cmnd').value.trim();
+        const ngayMoSo = document.getElementById('ngayMoSo').value.trim();
+        const soTienGui = document.getElementById('soTienGui').value.trim();
+
+        // Reset error messages
+        document.querySelectorAll('.error').forEach(el => el.textContent = '');
+
+        // Validate dữ liệu
+        let isValid = true;
+
+        if (maSo.length === 0 || maSo.length > 5) {
+            document.getElementById('maSoError').textContent = 'Mã số phải có từ 1-5 ký tự';
+            isValid = false;
+        }
+
+        if (isMaSoExists(maSo)) {
+            document.getElementById('maSoError').textContent = 'Mã số đã tồn tại';
+            isValid = false;
+        }
+
+        if (loaiTietKiem.length === 0 || loaiTietKiem.length > 10) {
+            document.getElementById('loaiTietKiemError').textContent = 'Loại tiết kiệm phải có từ 1-10 ký tự';
+            isValid = false;
+        }
+
+        if (hoTenKH.length === 0 || hoTenKH.length > 30) {
+            document.getElementById('hoTenKHError').textContent = 'Họ tên phải có từ 1-30 ký tự';
+            isValid = false;
+        }
+
+        if (cmnd.length === 0 || isNaN(cmnd)) {
+            document.getElementById('cmndError').textContent = 'CMND phải là số';
+            isValid = false;
+        }
+
+        if (!isValidDate(ngayMoSo)) {
+            document.getElementById('ngayMoSoError').textContent = 'Ngày không hợp lệ (dd/mm/yyyy)';
+            isValid = false;
+        }
+
+        if (soTienGui.length === 0 || isNaN(soTienGui) || parseFloat(soTienGui) <= 0) {
+            document.getElementById('soTienGuiError').textContent = 'Số tiền phải là số dương';
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // Thêm danh sách
+        const soTietKiem = new SOTIETKIEM(
+            maSo,
+            loaiTietKiem,
+            hoTenKH,
+            cmnd,
+            ngayMoSo,
+            parseFloat(soTienGui)
+        );
+
+        danhSachSoTietKiem.push(soTietKiem);
+        hienThiDanhSach();
+        alert('Thêm sổ tiết kiệm thành công!');
+        closeAddModal();
+    }
+
+    // Xác nhận xóa sổ
+    function xacNhanXoa() {
+        const maSoXoa = document.getElementById('maSoXoa').value.trim();
+        document.getElementById('maSoXoaError').textContent = '';
+
+        if (maSoXoa.length === 0) {
+            document.getElementById('maSoXoaError').textContent = 'Vui lòng nhập mã số';
+            return;
+        }
+
+        const index = danhSachSoTietKiem.findIndex(so => so.maSo === maSoXoa);
+        if (index === -1) {
+            document.getElementById('maSoXoaError').textContent = 'Mã số không tồn tại';
+            return;
+        }
+
+        if (confirm('Bạn có chắc chắn muốn xóa sổ tiết kiệm này không?')) {
+            danhSachSoTietKiem.splice(index, 1);
+            hienThiDanhSach();
+            alert('Xóa sổ tiết kiệm thành công!');
+            closeDeleteModal();
+        }
+    }
+
+
+    function hienThiDanhSach() {
+        const tbody = document.getElementById('tblBody');
+        tbody.innerHTML = '';
+
+        danhSachSoTietKiem.forEach(so => {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                    <td>${so.maSo}</td>
+                    <td>${so.loaiTietKiem}</td>
+                    <td>${so.hoTenKH}</td>
+                    <td>${so.cmnd}</td>
+                    <td>${so.ngayMoSo}</td>
+                    <td>${so.soTienGui.toLocaleString()}</td>
+                `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    function khoiTaoDuLieuMau() {
+        danhSachSoTietKiem.push(
+            new SOTIETKIEM('STK01', 'Không kỳ hạn', 'Nguyễn Văn A', '123456789', '01/01/2025', 10000000),
+            new SOTIETKIEM('STK02', '3 tháng', 'Trần Thị B', '987654321', '15/05/2024', 5000000),
+            new SOTIETKIEM('STK03', '6 tháng', 'Lê Văn C', '456123789', '20/10/2021', 20000000)
+        );
+        hienThiDanhSach();
+    }
+
+    window.onload = khoiTaoDuLieuMau;
+</script>
+</body>
+</html>
